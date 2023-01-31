@@ -4,6 +4,14 @@ This file is used to list changes made in each version of the PHP cookbook.
 
 ## Unreleased
 
+## 9.2.4 - *2023-02-16*
+
+Standardise files with files in sous-chefs/repo-management
+
+## 9.2.3 - *2023-02-15*
+
+Standardise files with files in sous-chefs/repo-management
+
 ## 9.2.2 - *2023-01-26*
 
 - Misc cleanup
