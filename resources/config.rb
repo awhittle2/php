@@ -62,5 +62,5 @@ action :install do
 end
 
 action_class do
-  include php::Cookbook::Helpers
+  include Php::Cookbook::Helpers
 end

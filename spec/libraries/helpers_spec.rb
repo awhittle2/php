@@ -1,5 +1,5 @@
 require 'spec_helper'
-require_relative '../../libraries/helpers.rb'
+require_relative '../../libraries/helpers'
 
 RSpec.describe Php::Cookbook::Helpers do
   class DummyClass < Chef::Node
@@ -9,7 +9,7 @@ RSpec.describe Php::Cookbook::Helpers do
   subject { DummyClass.new }
 
   describe '#php_version' do
-     before do
+    before do
       allow(subject).to receive(:[]).with('platform_family').and_return(platform_family)
       allow(subject).to receive(:[]).with('platform_version').and_return(platform_version)
     end
@@ -56,7 +56,7 @@ RSpec.describe Php::Cookbook::Helpers do
     context 'ubuntu 20.04' do
       let(:platform_family) { 'debian' }
       let(:platform_version) { '20.04' }
-       before { allow(platform_version).to receive(:to_f).and_return(20.04) }
+      before { allow(platform_version).to receive(:to_f).and_return(20.04) }
       it { expect(subject.php_version).to eq '7.4.7' }
     end
 
