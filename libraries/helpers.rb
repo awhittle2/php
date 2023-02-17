@@ -18,26 +18,34 @@ module Php
         end
       end
 
-      def php_version
-        case node['platform_family']
-        when 'rhel', 'amazon'
-          '7.2.31'
-        when 'debian'
-          if node['platform'] == 'debian' && node['platform_version'].to_i == 10
-            '7.3.19'
-          elsif node['platform'] == 'debian' && node['platform_version'].to_i >= 11
-            '7.4.27'
-          elsif node['platform'] == 'ubuntu' && node['platform_version'].to_f == 18.04
-            '7.2.31'
-          elsif node['platform'] == 'ubuntu' && node['platform_version'].to_f == 20.04
-            '7.4.7'
-          elsif node['platform'] == 'ubuntu' && node['platform_version'].to_f >= 22.04
-            '8.1.7'
-          else
-            '7.0.4'
-          end
-        end
+def php_version
+  case node['platform_family']
+  when 'rhel', 'amazon'
+    '7.2.31'
+  when 'debian'
+    case node['platform']
+    when 'debian'
+      case node['platform_version'].to_i
+      when 10
+        '7.3.19'
+      else
+        '7.4.27'
       end
+    when 'ubuntu'
+      case node['platform_version'].to_f
+      when 18.04
+        '7.2.31'
+      when 20.04
+        '7.4.7'
+      else
+        '8.1.7'
+      end
+    else
+      '7.0.4'
+    end
+  end
+end
+
 
       def php_checksum
         case node['platform_family']
