@@ -6,6 +6,7 @@ description       'Installs and maintains php and php modules'
 source_url        'https://github.com/sous-chefs/php'
 issues_url        'https://github.com/sous-chefs/php/issues'
 version           '9.2.5'
+
 chef_version      '>= 15.3'
 
 depends 'ondrej_ppa_ubuntu'

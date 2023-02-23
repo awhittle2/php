@@ -18,32 +18,14 @@
 # limitations under the License.
 #
 
-if node['php']['fpm_ini_control']
-
-  service node['php']['fpm_service'] do
-    action :enable
-  end
-
-  template "#{node['php']['fpm_conf_dir']}/php.ini" do
-    source node['php']['ini']['template']
-    cookbook node['php']['ini']['cookbook']
-    owner 'root'
-    group node['root_group']
-    mode '0644'
-    manage_symlink_source true
-    variables(directives: node['php']['directives'])
-    notifies :restart, "service[#{node['php']['fpm_service']}]"
-    not_if { node['php']['fpm_conf_dir'].nil? }
-  end
-
-end
-
-template "#{node['php']['conf_dir']}/php.ini" do
-  source node['php']['ini']['template']
-  cookbook node['php']['ini']['cookbook']
-  owner 'root'
-  group node['root_group']
-  mode '0644'
-  manage_symlink_source true
-  variables(directives: node['php']['directives'])
+config 'example' do
+  fpm_service 'php-fpm'
+  fpm_ini_control true
+  fpm_conf_dir '/etc/php/7.2/fpm'
+  ini_template 'php.ini.erb'
+  ini_cookbook 'php'
+  directives [
+    { name: 'display_errors', value: 'Off' },
+    { name: 'memory_limit', value: '256M' },
+  ]
 end
