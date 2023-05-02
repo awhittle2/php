@@ -18,6 +18,14 @@ action :install do
     action :install
   end
 
+  if platform_family?('rhel', 'amazon')
+    file 'Enable php sync' do
+      content 'extension=sync.so'
+      action :create
+      not_if { ::File.exist?('/etc/php.d/sync.ini') }
+    end
+  end
+
   if new_resource.community_packages
 
     if platform_family?('rhel', 'amazon')
