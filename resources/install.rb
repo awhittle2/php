@@ -8,7 +8,7 @@ property :src_recompile, [true, false], default: false
 property :url, String, default: lazy { php_url }
 property :checksum, String, default: lazy { php_checksum }
 property :installation_packages, Array, default: lazy { php_installation_packages }
-property :community_packages, [true, false], default: false
+property :community_package, [true, false], default: false
 property :install_type, String, equal_to: %w(package source), default: 'package'
 
 action :install do
