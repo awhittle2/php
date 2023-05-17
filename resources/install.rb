@@ -15,6 +15,15 @@ action :install do
   # if new_resource.install_type == 'package'
   if platform_family?('rhel', 'amazon')
     include_recipe 'yum-remi-chef::remi'
+  elsif platform?('ubuntu')
+    include_recipe 'ondrej_ppa_ubuntu'
+
+  elsif platform?('debian')
+    apt_repository 'sury-php' do
+      uri 'https://packages.sury.org/php/'
+      key 'https://packages.sury.org/php/apt.gpg'
+      components %w(main)
+    end
   end
 
   package 'Install PHP Packages' do
