@@ -14,7 +14,7 @@ property :install_type, String, equal_to: %w(package source), default: 'package'
 action :install do
   # if new_resource.install_type == 'package'
   if platform_family?('rhel', 'amazon')
-      include_recipe 'yum-remi-chef::remi'
+    include_recipe 'yum-remi-chef::remi'
   end
 
   package 'Install PHP Packages' do
