@@ -12,24 +12,22 @@ end
 
 # Add PEAR channel
 php_pear_channel 'pear.php.net' do
-  binary php_pear_path
   action :update
 end
 
 # Install https://pear.php.net/package/HTTP2
-php_pear 'HTTP2' do
-  binary php_pear_path
-end
+php_pear 'HTTP2'
 
 # Add PECL channel
 php_pear_channel 'pecl.php.net' do
-  binary php_pear_path
   action :update
 end
 
 # Install https://pecl.php.net/package/sync
-php_pear 'sync-binary' do
+pecl_method = node['pecl_method'] || 'binary'
+php_pear "sync-#{pecl_method}" do
   package_name 'sync'
-  binary 'pecl'
+  binary 'pecl' if pecl_method == 'binary'
+  channel 'pecl.php.net' if pecl_method == 'channel'
   priority '50'
 end
