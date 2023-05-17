@@ -7,30 +7,6 @@ end
 
 apt_update 'update'
 
-include_recipe 'php'
-
-# README: The Remi repo intentionally avoids installing the binaries to
-#         the default paths. It comes with a /opt/remi/php80/enable profile
-#         which can be copied or linked into /etc/profiles.d to auto-load for
-#         operators in a real cookbook.
-if platform_family?('rhel', 'amazon')
-  link '/usr/bin/php' do
-    to '/usr/bin/php80'
-  end
-
-  link '/usr/bin/php-pear' do
-    to '/usr/bin/php80-pear'
-  end
-
-  link '/usr/bin/pecl' do
-    to '/opt/remi/php80/root/bin/pecl'
-  end
-
-  link '/etc/profile.d/php80-enable.sh' do
-    to '/opt/remi/php80/enable'
-  end
-end
-
 # Create a test pool
 php_fpm_pool 'test-pool' do
   action :install
