@@ -1,34 +1,26 @@
-node.default['php']['fpm_ini_control'] = false
-
-if platform_family?('rhel', 'amazon')
-  node.default['php']['packages']         = %w(php80 php80-php-devel php80-php-cli php80-php-pear)
-  node.default['php']['conf_dir']         = '/etc/opt/remi/php80'
-  node.default['php']['ext_conf_dir']     = '/etc/opt/remi/php80/php.d'
-  node.default['php']['fpm_package']      = 'php80-php-fpm'
-  node.default['php']['fpm_service']      = 'php80-php-fpm'
-  node.default['php']['fpm_pooldir']      = '/etc/opt/remi/php80/php-fpm.d'
-  node.default['php']['fpm_default_conf'] = '/etc/opt/remi/php80/php-fpm.d/www.conf'
-  node.default['php']['pear']             = '/usr/bin/php80-pear'
-
-  lib_dir = node['kernel']['machine'] =~ /x86_64/ ? 'lib64' : 'lib'
-  node.default['php']['ext_dir'] = "/opt/remi/php80/root/#{lib_dir}/php/modules"
-elsif platform_family?('debian')
-  node.default['php']['packages']         = %w(php8.2 php8.2-cgi php8.2-cli php8.2-dev php-pear)
-  node.default['php']['conf_dir']         = '/etc/php/8.2/'
-  node.default['php']['ext_conf_dir']     = '/etc/php/8.2/mods-available'
-  node.default['php']['fpm_package']      = 'php8.2-fpm'
-  node.default['php']['fpm_service']      = 'php8.2-fpm'
-  node.default['php']['fpm_conf_dir']     = '/etc/php/8.2/fpm'
-  node.default['php']['fpm_pooldir']      = '/etc/php/8.2/fpm/pool.d'
-  node.default['php']['fpm_default_conf'] = '/etc/php/8.2/fpm/pool.d/www.conf'
-  node.default['php']['fpm_socket']       = '/var/run/php/php8.2-fpm.sock'
+if platform_family?('amazon')
+  yum_remi_safe 'default' do
+    baseurl 'http://rpms.famillecollet.com/enterprise/$releasever/remi-safe/$basearch/'
+    mirrorlist 'http://rpms.famillecollet.com/enterprise/$releasever/remi/mirror'
+    description 'Remi Safe Repository'
+    gpgkey 'http://rpms.remirepo.net/RPM-GPG-KEY-remi'
+    action :create
+  end
 end
 
-node.default['php']['install_method'] = 'community_package'
+yum_remi_php80 'default' if platform_family?('rhel', 'amazon')
+
+php_install 'php' do
+  if platform_family?('rhel', 'amazon')
+    packages %w(php80 php80-php-devel php80-php-cli php80-php-pear)
+  else
+    packages %w(php8.2 php8.2-cgi php8.2-cli php8.2-dev php-pear)
+  end
+  community_package true
+  action :install
+end
 
 apt_update 'update'
-
-include_recipe 'php'
 
 # README: The Remi repo intentionally avoids installing the binaries to
 #         the default paths. It comes with a /opt/remi/php80/enable profile
@@ -39,7 +31,7 @@ if platform_family?('rhel', 'amazon')
     to '/usr/bin/php80'
   end
 
-  link '/usr/bin/php-pear' do
+  link '/usr/bin/pear' do
     to '/usr/bin/php80-pear'
   end
 
@@ -54,28 +46,60 @@ end
 
 # Create a test pool
 php_fpm_pool 'test-pool' do
+  if platform_family?('rhel', 'amazon')
+    listen '/var/run/php-test-fpm.sock'
+    pool_dir '/etc/opt/remi/php80/php-fpm.d'
+    fpm_package 'php80-php-fpm'
+    service 'php80-php-fpm'
+    default_conf '/etc/opt/remi/php80/php-fpm.d/www.conf'
+  else
+    listen '/var/run/php/php8.2-fpm.sock'
+    pool_dir '/etc/php/8.2/fpm/pool.d'
+    fpm_package 'php8.2-fpm'
+    service 'php8.2-fpm'
+    default_conf '/etc/php/8.2/fpm/pool.d/www.conf'
+  end
   action :install
 end
 
 # Add PEAR channel
 php_pear_channel 'pear.php.net' do
-  binary node['php']['pear']
+  if platform_family?('rhel', 'amazon')
+    binary 'php80-pear'
+  else
+    binary '/usr/bin/pear'
+  end
   action :update
 end
 
 # Install https://pear.php.net/package/HTTP2
 php_pear 'HTTP2' do
-  binary node['php']['pear']
+  if platform_family?('rhel', 'amazon')
+    binary 'php80-pear'
+  else
+    binary '/usr/bin/pear'
+  end
 end
 
 # Add PECL channel
 php_pear_channel 'pecl.php.net' do
-  binary node['php']['pear']
+  if platform_family?('rhel', 'amazon')
+    binary 'php80-pear'
+  else
+    binary '/usr/bin/pear'
+  end
   action :update
 end
 
 # Install https://pecl.php.net/package/sync
 php_pear 'sync-binary' do
+  if platform_family?('rhel', 'amazon')
+    conf_dir '/etc/opt/remi/php80'
+    ext_conf '/etc/opt/remi/php80/php.d'
+  else
+    conf_dir '/etc/php/8.2/'
+    ext_conf '/etc/php/8.2/mods-available'
+  end
   package_name 'sync'
   binary 'pecl'
   priority '50'
